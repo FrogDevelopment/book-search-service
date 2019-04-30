@@ -1,6 +1,6 @@
-package fr.frogdevelopment.book.search.implementation;
+package fr.frogdevelopment.book.search.implementation.google;
 
-import java.util.List;
+import fr.frogdevelopment.book.search.implementation.QueryRequest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,10 +20,14 @@ class SearchGoogleTest {
     @Test
     void should() {
         // given
-        String author = "brandon sanderson";
-
+        QueryRequest queryRequest = QueryRequest.builder()
+                .langRestrict("fr")
+                .author("brandon sanderson")
+                .startIndex(0)
+                .maxResults(23)
+                .build();
         // when
-        searchGoogle.call(List.of("en", "fr"), null, author, null, null);
+        searchGoogle.call(queryRequest);
 
         // then
     }
