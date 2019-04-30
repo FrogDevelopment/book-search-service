@@ -43,14 +43,20 @@ dependencies {
 
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+//    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+//    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'de.codecentric:spring-boot-admin-starter-client'
     
     implementation 'javax.xml.bind:jaxb-api'
     implementation 'org.glassfish.jaxb:jaxb-runtime'
     implementation 'org.xerial:sqlite-jdbc'
+
+    implementation 'org.apache.commons:commons-lang3'
+
+    implementation 'com.google.code.gson:gson'
+//    implementation 'com.google.api-client:google-api-client:1.25.0'
+    implementation 'com.google.apis:google-api-services-books:v1-rev106-1.25.0'
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
