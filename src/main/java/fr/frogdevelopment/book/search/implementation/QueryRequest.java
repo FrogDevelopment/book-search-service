@@ -21,10 +21,6 @@ public class QueryRequest implements Serializable {
 
     @Getter
     private String langRestrict;
-    @Getter
-    private long maxResults;
-    @Getter
-    private long startIndex;
 
     public String getQuery() {
         var parameters = new ArrayList<String>();

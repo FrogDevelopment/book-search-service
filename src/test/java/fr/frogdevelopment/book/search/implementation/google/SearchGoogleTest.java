@@ -23,15 +23,13 @@ class SearchGoogleTest {
     @Test
     void should() {
         // given
-        var nbResult = 1;
+        var nbResult = 100;
         QueryRequest queryRequest = QueryRequest.builder()
                 .langRestrict("fr")
                 .author("brandon sanderson")
-                .startIndex(0)
-                .maxResults(nbResult)
                 .build();
         // when
-        List<Book> books = searchGoogle.call(queryRequest);
+        List<Book> books = searchGoogle.call(queryRequest, nbResult, 0);
 
         // then
         assertThat(books).hasSize(nbResult);

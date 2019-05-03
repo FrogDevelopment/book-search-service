@@ -10,6 +10,7 @@ import com.google.api.services.books.model.Volume.VolumeInfo.IndustryIdentifiers
 import fr.frogdevelopment.book.search.entity.Book;
 import fr.frogdevelopment.book.search.implementation.QueryRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,14 +27,31 @@ class SearchGoogle {
         this.books = books;
     }
 
-    List<Book> call(QueryRequest queryRequest) {
-        log.info("{}", queryRequest);
+    List<Book> call(QueryRequest queryRequest, int nbResult, int startIndex) {
+        if (nbResult <= 40) {
+            return getBooks(queryRequest, nbResult, startIndex);
+        } else {
+            List<Book> books = new ArrayList<>();
+            do {
+                nbResult -= 40;
+                books.addAll(getBooks(queryRequest, 40, startIndex++));
+            } while (nbResult > 40);
 
+            if (nbResult > 0) {
+                books.addAll(getBooks(queryRequest, nbResult, startIndex));
+            }
+
+            return books;
+        }
+    }
+
+    private List<Book> getBooks(QueryRequest queryRequest, long nbResult, long startIndex) {
+        log.info("*** {}, nbResult={}, startIndex={}", queryRequest, nbResult, startIndex);
         try {
             Volumes.List volumesList = books.volumes().list(queryRequest.getQuery());
             volumesList.setLangRestrict(queryRequest.getLangRestrict());
-            volumesList.setMaxResults(queryRequest.getMaxResults());
-            volumesList.setStartIndex(queryRequest.getStartIndex());
+            volumesList.setMaxResults(nbResult);
+            volumesList.setStartIndex(startIndex);
             volumesList.setOrderBy("newest");
             volumesList.setPrintType("books");
 //        volumesList.setFields()
