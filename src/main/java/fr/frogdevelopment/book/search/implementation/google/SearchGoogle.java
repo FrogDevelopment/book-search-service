@@ -1,15 +1,18 @@
 package fr.frogdevelopment.book.search.implementation.google;
 
-import static java.lang.Math.max;
-import static java.lang.Math.round;
+import static java.util.Collections.emptyList;
 
 import com.google.api.services.books.Books;
 import com.google.api.services.books.Books.Volumes;
 import com.google.api.services.books.model.Volume;
+import com.google.api.services.books.model.Volume.VolumeInfo;
 import com.google.api.services.books.model.Volume.VolumeInfo.IndustryIdentifiers;
+import fr.frogdevelopment.book.search.entity.Book;
 import fr.frogdevelopment.book.search.implementation.QueryRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +26,7 @@ class SearchGoogle {
         this.books = books;
     }
 
-    void call(QueryRequest queryRequest) {
+    List<Book> call(QueryRequest queryRequest) {
         log.info("{}", queryRequest);
 
         try {
@@ -41,75 +44,67 @@ class SearchGoogle {
             // Output results.
             if (volumes.getTotalItems() == 0 || volumes.getItems() == null) {
                 log.info("No matches found.");
-                return;
+                return emptyList();
             }
 
-            for (var volume : volumes.getItems()) {
-                displayVolumeInfo(volume);
-            }
+            return volumes.getItems().stream()
+                    .map(toBook())
+                    .collect(Collectors.toList());
 
-            log.info("==========");
-            log.info("{} total results", volumes.getTotalItems());
 
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private void displayVolumeInfo(Volume volume) throws IOException {
-        var volumeInfo = volume.getVolumeInfo();
-        log.info("==========");
+    private Function<Volume, Book> toBook() {
+        return volume -> {
+            VolumeInfo volumeInfo = volume.getVolumeInfo();
+            var builder = Book.builder()
+                    .title(volumeInfo.getTitle())
+                    .authors(volumeInfo.getAuthors())
+                    .publisher(volumeInfo.getPublisher())
+                    .language(volumeInfo.getLanguage())
+                    .description(volumeInfo.getDescription())
+                    .accessViewStatus(volume.getAccessInfo().getAccessViewStatus())
+                    .infoLink(volumeInfo.getInfoLink());
 
-        // ISBN
-        List<IndustryIdentifiers> industryIdentifiers = volumeInfo.getIndustryIdentifiers();
-        if (industryIdentifiers != null) {
-            for (IndustryIdentifiers i : industryIdentifiers) {
-                log.info("{}: {}", i.getType(), i.getIdentifier());
+            // ISBN
+            List<IndustryIdentifiers> industryIdentifiers = volumeInfo.getIndustryIdentifiers();
+            if (industryIdentifiers != null) {
+                industryIdentifiers.stream()
+                        .filter(i -> "ISBN_13".equals(i.getType()))
+                        .map(IndustryIdentifiers::getIdentifier)
+                        .forEach(builder::isbn);
             }
-        }
 
-        // Title.
-        log.info("Title: " + volumeInfo.getTitle());
+            // Ratings
+            if (volumeInfo.getRatingsCount() != null && volumeInfo.getRatingsCount() > 0) {
+                builder.ratingAverage(volumeInfo.getAverageRating())
+                        .ratingCount(volumeInfo.getRatingsCount());
+            }
 
-        // Author(s).
-        var authors = volumeInfo.getAuthors();
-        if (authors != null && !authors.isEmpty()) {
-            log.info("Author(s): {}", authors);
-        }
+//            // Access status.
+//            var accessViewStatus = volume.getAccessInfo().getAccessViewStatus();
+//            var message = "Additional information about this book is available from Google eBooks at: {}";
+//            if ("FULL_PUBLIC_DOMAIN".equals(accessViewStatus)) {
+//                message = "This public domain book is available for free from Google eBooks at: {}";
+//            } else if ("SAMPLE".equals(accessViewStatus)) {
+//                message = "A preview of this book is available from Google eBooks at: {}";
+//            }
+//            // Link to Google eBooks.
+//            log.info(message, volumeInfo.getInfoLink());
 
-        // Publisher.
-        var publisher = volumeInfo.getPublisher();
-        log.info("Publisher: {}", publisher);
+            // Images
+            if (volumeInfo.getImageLinks() != null) {
+                builder.thumbnail(volumeInfo.getImageLinks().getThumbnail())
+                        .large(volumeInfo.getImageLinks().getLarge());
+            }
 
-        // Language.
-        var language = volumeInfo.getLanguage();
-        log.info("Language: {}", language);
+            Book book = builder.build();
+            log.info("{}", book);
 
-        // Description (if any).
-        if (volumeInfo.getDescription() != null && volumeInfo.getDescription().length() > 0) {
-            log.info("Description: " + volumeInfo.getDescription());
-        }
-        // Ratings (if any).
-        if (volumeInfo.getRatingsCount() != null && volumeInfo.getRatingsCount() > 0) {
-            log.info("User Rating: {} ({} rating(s))",
-                    "*".repeat(max(0, (int) round(volumeInfo.getAverageRating()))),
-                    volumeInfo.getRatingsCount());
-        }
-
-        // Access status.
-        var accessViewStatus = volume.getAccessInfo().getAccessViewStatus();
-        var message = "Additional information about this book is available from Google eBooks at: {}";
-        if ("FULL_PUBLIC_DOMAIN".equals(accessViewStatus)) {
-            message = "This public domain book is available for free from Google eBooks at: {}";
-        } else if ("SAMPLE".equals(accessViewStatus)) {
-            message = "A preview of this book is available from Google eBooks at: {}";
-        }
-        // Link to Google eBooks.
-        log.info(message, volumeInfo.getInfoLink());
-
-        //
-        if (volumeInfo.getImageLinks() != null) {
-            log.info("imageLinks: {}", volumeInfo.getImageLinks().toPrettyString());
-        }
+            return book;
+        };
     }
 }

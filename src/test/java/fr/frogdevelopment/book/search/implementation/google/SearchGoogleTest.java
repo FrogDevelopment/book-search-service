@@ -1,14 +1,17 @@
 package fr.frogdevelopment.book.search.implementation.google;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import fr.frogdevelopment.book.search.entity.Book;
 import fr.frogdevelopment.book.search.implementation.QueryRequest;
-import org.junit.jupiter.api.Disabled;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@Disabled
+//@Disabled
 @SpringBootTest
 @ActiveProfiles("test")
 @Tag("integrationTest")
@@ -20,16 +23,18 @@ class SearchGoogleTest {
     @Test
     void should() {
         // given
+        var nbResult = 1;
         QueryRequest queryRequest = QueryRequest.builder()
                 .langRestrict("fr")
                 .author("brandon sanderson")
                 .startIndex(0)
-                .maxResults(23)
+                .maxResults(nbResult)
                 .build();
         // when
-        searchGoogle.call(queryRequest);
+        List<Book> books = searchGoogle.call(queryRequest);
 
         // then
+        assertThat(books).hasSize(nbResult);
     }
 
 }
