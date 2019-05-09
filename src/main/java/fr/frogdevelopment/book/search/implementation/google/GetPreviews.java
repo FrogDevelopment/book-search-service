@@ -24,8 +24,8 @@ public class GetPreviews {
         this.books = books;
     }
 
-    List<Book> call(String title, String author, String publisher, String langRestrict, long nbResult,
-                    long startIndex) {
+    public List<Book> call(String title, String author, String publisher, String langRestrict, long nbResult,
+                           long startIndex) {
 
         try {
             var volumesList = books.volumes().list(toQuery(title, author, publisher));
