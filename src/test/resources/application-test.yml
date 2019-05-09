@@ -1,2 +1,4 @@
 logging:
   config: classpath:logback-spring-test.xml
+google:
+  api-key: kldjlksdgjlwsdfghkmwdfhlk!df

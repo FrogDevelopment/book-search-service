@@ -8,12 +8,17 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.books.Books;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GoogleConfig {
+
+    @Value("${google.api-key}")
+    private String googleApiKey;
 
     private final BuildProperties buildProperties;
 
@@ -28,16 +33,24 @@ public class GoogleConfig {
 
     @Bean
     Books books() throws GeneralSecurityException, IOException {
+        errorIfNotSpecified();
         return new Books.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory(), null)
-                /*
-                  Be sure to specify the name of your application. If the application name is null or blank, the
-                  application will log a warning. Suggested format is "MyCompany-ProductName/1.0".
-                 */
-                .setApplicationName(format("%s-%s/%s",
-                        buildProperties.getGroup(),
-                        buildProperties.getName(),
-                        buildProperties.getVersion()))
+                .setApplicationName(getApplicationName())
+//                .setGoogleClientRequestInitializer(new BooksRequestInitializer(googleApiKey))
                 .build();
+    }
+
+    private String getApplicationName() {
+        return format("%s-%s/%s",
+                buildProperties.getGroup(),
+                buildProperties.getName(),
+                buildProperties.getVersion());
+    }
+
+    private void errorIfNotSpecified() {
+        if (StringUtils.isBlank(googleApiKey)) {
+            throw new IllegalStateException("Missing google.api-key property");
+        }
     }
 
 }

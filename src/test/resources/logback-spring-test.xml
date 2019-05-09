@@ -5,6 +5,7 @@
 
     <!--<logger name="fr.frogdevelopment.nihongo.dico" level="TRACE"/>-->
     <!--    <logger name="org.springframework.security" level="TRACE"/>-->
+    <logger name="com.google.api.client.http.level" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
