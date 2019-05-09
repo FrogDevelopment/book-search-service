@@ -20,7 +20,7 @@ public class BookController {
         this.getBook = getBook;
     }
 
-    @GetMapping("search")
+    @GetMapping("previews")
     public List<Book> search(@RequestParam(name = "title", required = false) String title,
                              @RequestParam(name = "author", required = false) String author,
                              @RequestParam(name = "publisher", required = false) String publisher,
@@ -30,12 +30,12 @@ public class BookController {
         return getPreviews.call(title, author, publisher, langRestrict, nbResult, startIndex);
     }
 
-    @GetMapping("get-detail")
+    @GetMapping("detail")
     public Optional<Book> withDetailFields(@RequestParam String isbn) {
         return getBook.withDetailFields(isbn);
     }
 
-    @GetMapping("get-full")
+    @GetMapping("full")
     public Optional<Book> withFullFields(@RequestParam String isbn) {
         return getBook.withFullFields(isbn);
     }
