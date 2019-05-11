@@ -3,14 +3,12 @@ package fr.frogdevelopment.book.search.implementation.google;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@Disabled("fix unknownLocation")
 @SpringBootTest
 @ActiveProfiles("test")
 @Tag("integrationTest")
@@ -22,10 +20,11 @@ class GetBookTest {
     @Test
     void shouldReturnBookWithDetailFields() {
         // given
+        var country = "fr";
         var isbn = "9781429914567";
 
         // when
-        var book = getBook.withDetailFields(isbn);
+        var book = getBook.withDetailFields(country, isbn);
 
         // then
         assertThat(book).isPresent();
@@ -50,10 +49,11 @@ class GetBookTest {
     @Test
     void shouldReturnBookWithAllFields() {
         // given
+        var country = "fr";
         var isbn = "9781429914567";
 
         // when
-        var book = getBook.withFullFields(isbn);
+        var book = getBook.withFullFields(country, isbn);
 
         // then
         assertThat(book).isPresent();
