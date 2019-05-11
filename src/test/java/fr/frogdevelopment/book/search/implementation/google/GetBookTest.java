@@ -49,10 +49,11 @@ class GetBookTest {
     @Test
     void shouldReturnBookWithAllFields() {
         // given
+        var country = "fr";
         var isbn = "9781429914567";
 
         // when
-        var book = getBook.withFullFields("", isbn);
+        var book = getBook.withFullFields(country, isbn);
 
         // then
         assertThat(book).isPresent();
