@@ -21,23 +21,26 @@ public class BookController {
     }
 
     @GetMapping("previews")
-    public List<Book> search(@RequestParam(name = "title", required = false) String title,
+    public List<Book> search(@RequestParam(name = "country") String country,
+                             @RequestParam(name = "title", required = false) String title,
                              @RequestParam(name = "author", required = false) String author,
                              @RequestParam(name = "publisher", required = false) String publisher,
                              @RequestParam(name = "lang_restrict", required = false) String langRestrict,
                              @RequestParam(name = "nb_result", defaultValue = "10") long nbResult,
                              @RequestParam(name = "start_index", defaultValue = "0") long startIndex) {
-        return getPreviews.call(title, author, publisher, langRestrict, nbResult, startIndex);
+        return getPreviews.call(country, title, author, publisher, langRestrict, nbResult, startIndex);
     }
 
     @GetMapping("detail")
-    public Optional<Book> withDetailFields(@RequestParam String isbn) {
-        return getBook.withDetailFields(isbn);
+    public Optional<Book> withDetailFields(@RequestParam(name = "country") String country,
+                                           @RequestParam String isbn) {
+        return getBook.withDetailFields(country, isbn);
     }
 
     @GetMapping("full")
-    public Optional<Book> withFullFields(@RequestParam String isbn) {
-        return getBook.withFullFields(isbn);
+    public Optional<Book> withFullFields(@RequestParam(name = "country") String country,
+                                         @RequestParam String isbn) {
+        return getBook.withFullFields(country, isbn);
     }
 
 }

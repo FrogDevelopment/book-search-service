@@ -1,6 +1,5 @@
 package fr.frogdevelopment.book.search.implementation.google;
 
-import com.google.api.services.books.Books;
 import fr.frogdevelopment.book.search.entity.Book;
 import java.io.IOException;
 import java.util.Optional;
@@ -12,23 +11,23 @@ public class GetBook {
     private static final String DETAIL_FIELDS = "totalItems,items(volumeInfo(subtitle,publishedDate,language,description,pageCount,categories,averageRating,ratingsCount))";
     private static final String FULL_FIELDS = "totalItems,items(volumeInfo(title,subtitle,authors,imageLinks(thumbnail),publisher,publishedDate,language,description,pageCount,categories,averageRating,ratingsCount))";
 
-    private final Books books;
+    private final CreateVolumesQuery createVolumesQuery;
 
-    public GetBook(Books books) {
-        this.books = books;
+    public GetBook(CreateVolumesQuery createVolumesQuery) {
+        this.createVolumesQuery = createVolumesQuery;
     }
 
-    public Optional<Book> withDetailFields(String isbn) {
-        return call(isbn, DETAIL_FIELDS);
+    public Optional<Book> withDetailFields(String country, String isbn) {
+        return call(country, isbn, DETAIL_FIELDS);
     }
 
-    public Optional<Book> withFullFields(String isbn) {
-        return call(isbn, FULL_FIELDS);
+    public Optional<Book> withFullFields(String country, String isbn) {
+        return call(country, isbn, FULL_FIELDS);
     }
 
-    private Optional<Book> call(String isbn, String fields) {
+    private Optional<Book> call(String country, String isbn, String fields) {
         try {
-            var volumesList = books.volumes().list("isbn:" + isbn);
+            var volumesList = createVolumesQuery.call(country, "isbn:" + isbn);
             volumesList.setFields(fields);
 
             // Execute the queryRequest.

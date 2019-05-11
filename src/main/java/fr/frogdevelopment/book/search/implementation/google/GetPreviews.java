@@ -4,7 +4,6 @@ import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.google.api.services.books.Books;
 import fr.frogdevelopment.book.search.entity.Book;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,26 +17,31 @@ public class GetPreviews {
     private static final String PRINT_TYPE = "books";
     private static final String PREVIEW_FIELDS = "totalItems,items/volumeInfo(title,publisher,authors,imageLinks(thumbnail),industryIdentifiers)";
 
-    private final Books books;
+    private final CreateVolumesQuery createVolumesQuery;
 
-    public GetPreviews(Books books) {
-        this.books = books;
+    public GetPreviews(CreateVolumesQuery createVolumesQuery) {
+        this.createVolumesQuery = createVolumesQuery;
     }
 
-    public List<Book> call(String title, String author, String publisher, String langRestrict, long nbResult,
+    public List<Book> call(String country,
+                           String title,
+                           String author,
+                           String publisher,
+                           String langRestrict,
+                           long nbResult,
                            long startIndex) {
 
         try {
-            var volumesList = books.volumes().list(toQuery(title, author, publisher));
-            volumesList.setLangRestrict(langRestrict);
-            volumesList.setMaxResults(nbResult);
-            volumesList.setStartIndex(startIndex);
-            volumesList.setOrderBy("relevance");
-            volumesList.setPrintType(PRINT_TYPE);
-            volumesList.setFields(PREVIEW_FIELDS);
+            var volumesQuery = createVolumesQuery.call(country, toQuery(title, author, publisher));
+            volumesQuery.setLangRestrict(langRestrict);
+            volumesQuery.setMaxResults(nbResult);
+            volumesQuery.setStartIndex(startIndex);
+            volumesQuery.setOrderBy("relevance");
+            volumesQuery.setPrintType(PRINT_TYPE);
+            volumesQuery.setFields(PREVIEW_FIELDS);
 
             // Execute the queryRequest.
-            var volumes = volumesList.execute();
+            var volumes = volumesQuery.execute();
 
             // Output results.
             if (volumes.getTotalItems() == 0) {
